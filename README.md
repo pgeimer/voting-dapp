@@ -5,8 +5,9 @@ A decentralized voting app running on ethereum blockchain.
 ## Setup
 Deploy smart contract
 
-1. Deploy contract/voting-contract.sol on Ropsten
-2. Change consts in index.js and state/state.js
+1. Change timestamps in contract/voting-contract.sol
+2. Deploy contract/voting-contract.sol on Ropsten
+3. Change consts in index.js and state/state.js
 
 Start local ethereum node
 
