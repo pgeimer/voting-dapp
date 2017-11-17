@@ -35,11 +35,19 @@ app.post('/validate', function(req, res) {
             var result = web3.eth.sendTransaction({
                 from: stateAddress,
                 to: address,
-                value: 100000000000000000
-            }, function(result) {
-                res.json({
-                    "message": "Valid voter"
-                });
+                value: 10000000000000000
+            }, function(err, txHash) {
+                if (!err) {
+                    res.json({
+                        "message": "Valid voter",
+                        "tx": txHash
+                    });
+                } else {
+                    res.statusCode = 500;
+                    res.json({
+                        "message": "Can't send eth to address"
+                    });
+                }
             });
         });
     }

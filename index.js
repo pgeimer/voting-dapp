@@ -20,6 +20,28 @@ var passwordAddress2;
 var vote;
 var salt;
 
+Ladda.bind('.ladda-button');
+
+$("#btnStart").on("click", function(e) {
+    e.preventDefault();
+    generate();
+});
+
+$("#btnCheckVoter").on("click", function(e) {
+    e.preventDefault();
+    checkVoter();
+});
+
+$("#btnVote").on("click", function(e) {
+    e.preventDefault();
+    vote();
+});
+
+$("#btnRevealVote").on("click", function(e) {
+    e.preventDefault();
+    revealVote();
+});
+
 function generate() {
     passwordAddress1 = Math.random().toString(36).slice(-10);
     passwordAddress2 = Math.random().toString(36).slice(-10);
@@ -44,8 +66,10 @@ function checkVoter() {
         },
         dataType: 'json',
         success: function(data) {
-            $('#divValidation').hide();
-            $('#divVoting').show();
+            web3.eth.getTransactionReceiptMined(data.tx).then(function() {
+                console.log("Ethers successfully sent to address 1");
+                sendEthersToSecondAddress();
+            });
         },
         error: function(request, status, error) {
             console.log(request);
@@ -62,9 +86,14 @@ function sendEthersToSecondAddress() {
     web3.eth.sendTransaction({
         from: firstAddress,
         to: secondAddress,
-        value: 50000000000000000
-    }, function() {
-        console.log("Ethers successfully sent to address 2");
+        value: 5000000000000000
+    }, function(err, txHash) {
+        if (!err) {
+            web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                console.log("Ethers successfully sent to address 2");
+                mint();
+            });
+        }
     });
 }
 
@@ -76,6 +105,14 @@ function mint() {
     web3.personal.unlockAccount(firstAddress, passwordAddress1, 1000);
     var result = contractInstance.mint.sendTransaction(coinCommitment, {
         from: firstAddress
+    }, function(err, txHash) {
+        if (!err) {
+            web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                console.log("CointCommitment successfully sent to contract");
+                $('#divValidation').hide();
+                $('#divVoting').show();
+            });
+        }
     });
 }
 
@@ -89,9 +126,14 @@ function vote() {
     web3.personal.unlockAccount(secondAddress, passwordAddress2, 1000);
     var result = contractInstance.spend.sendTransaction(serialNumber, hashedVote, {
         from: secondAddress
-    }, function() {
-        $('#divVoting').hide();
-        $('#divRevelation').show();
+    }, function(err, txHash) {
+        if (!err) {
+            web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                console.log("Vote successfully sent to contract");
+                $('#divVoting').hide();
+                $('#divRevelation').show();
+            });
+        }
     });
 }
 
@@ -99,5 +141,39 @@ function revealVote() {
     web3.personal.unlockAccount(secondAddress, passwordAddress2, 1000);
     var result = contractInstance.reveal.sendTransaction(vote, salt, {
         from: secondAddress
+    }, function(err, txHash) {
+        if (!err) {
+            web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                console.log("Vote successfully revealed");
+                $('#divRevelation').hide();
+                $('#divCompletion').show();
+            });
+        }
     });
 }
+
+web3.eth.getTransactionReceiptMined = function(txHash, interval) {
+    const self = this;
+    const transactionReceiptAsync = function(resolve, reject) {
+        self.getTransactionReceipt(txHash, (error, receipt) => {
+            if (error) {
+                reject(error);
+            } else if (receipt == null) {
+                setTimeout(
+                    () => transactionReceiptAsync(resolve, reject),
+                    interval ? interval : 500);
+            } else {
+                resolve(receipt);
+            }
+        });
+    };
+
+    if (Array.isArray(txHash)) {
+        return Promise.all(txHash.map(
+            oneTxHash => self.getTransactionReceiptMined(oneTxHash, interval)));
+    } else if (typeof txHash === "string") {
+        return new Promise(transactionReceiptAsync);
+    } else {
+        throw new Error("Invalid Type: " + txHash);
+    }
+};
