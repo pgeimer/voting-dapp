@@ -6,19 +6,30 @@ if (typeof web3 !== 'undefined') {
 
 const contractAddress = '0x...';
 
-abi = JSON.parse('[{"constant":false,"inputs":[{"name":"serialNumber","type":"bytes"},{"name":"hashedVote","type":"bytes32"}],"name":"spend","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"validVoters","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"vote","type":"uint8"},{"name":"salt","type":"bytes32"}],"name":"reveal","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"revealedVotes","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"coinCommitment","type":"bytes"}],"name":"mint","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"voter","type":"address"}],"name":"validateVoter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"voter","type":"address"},{"name":"vote","type":"uint256"},{"name":"salt","type":"bytes32"}],"name":"shaVote","outputs":[{"name":"sealedVote","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]');
+abi = JSON.parse('[{"constant":false,"inputs":[{"name":"voter","type":"address"},{"name":"constituency","type":"uint8"}],"name":"validateVoter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"vote","type":"uint8"},{"name":"salt","type":"bytes32"},{"name":"voteType","type":"uint8"}],"name":"reveal","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"coinCommitment","type":"bytes"},{"name":"voteType","type":"uint8"}],"name":"mint","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"serialNumber","type":"bytes"},{"name":"hashedVote","type":"bytes32"},{"name":"voteType","type":"uint8"}],"name":"spend","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"endTimestamp","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"wk1ValidVoters","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"zsValidVoters","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"wk1RevealedVotes","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"zsRevealedVotes","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"voter","type":"address"},{"name":"vote","type":"uint256"},{"name":"salt","type":"bytes32"}],"name":"shaVote","outputs":[{"name":"sealedVote","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"startTimestamp","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]');
 var votingContract = web3.eth.contract(abi);
 var contractInstance = votingContract.at(contractAddress);
 
-var random;
-var serialNumber;
-var coinCommitment;
 var firstAddress;
 var secondAddress;
+
+var constituency;
+
+var erststimme;
+var esRandom;
+var esSerialNumber;
+var esCoinCommitment;
+var esSalt;
+
+var zweitstimme;
+var zsRandom;
+var zsSerialNumber;
+var zsCoinCommitment;
+var zsSalt;
+
 var passwordAddress1;
 var passwordAddress2;
-var vote;
-var salt;
+
 
 Ladda.bind('.ladda-button');
 
@@ -66,6 +77,7 @@ function checkVoter() {
         },
         dataType: 'json',
         success: function(data) {
+            constituency = data.constituency
             web3.eth.getTransactionReceiptMined(data.tx).then(function() {
                 console.log("Ethers successfully sent to address 1");
                 sendEthersToSecondAddress();
@@ -98,40 +110,75 @@ function sendEthersToSecondAddress() {
 }
 
 function mint() {
-    random = Math.floor(Math.random() * 100000000000);
-    serialNumber = Math.floor(Math.random() * 100000000000);
-    coinCommitment = sha256(random.toString() + serialNumber.toString());
+    if (!constituency) {
+        alert('Wahlkreis konnte nicht ermittelt werden.');
+        return;
+    }
+
+    esRandom = Math.floor(Math.random() * 100000000000);
+    esSerialNumber = Math.floor(Math.random() * 100000000000);
+    esCoinCommitment = sha256(esRandom.toString() + esSerialNumber.toString());
+
+    zsRandom = Math.floor(Math.random() * 100000000000);
+    zsSerialNumber = Math.floor(Math.random() * 100000000000);
+    zsCoinCommitment = sha256(zsRandom.toString() + zsSerialNumber.toString());
 
     web3.personal.unlockAccount(firstAddress, passwordAddress1, 1000);
-    var result = contractInstance.mint.sendTransaction(coinCommitment, {
+    contractInstance.mint.sendTransaction(esCoinCommitment, constituency, {
         from: firstAddress
     }, function(err, txHash) {
         if (!err) {
             web3.eth.getTransactionReceiptMined(txHash).then(function() {
-                console.log("CointCommitment successfully sent to contract");
-                $('#divValidation').hide();
-                $('#divVoting').show();
+                console.log("CointCommitment for Erststimme successfully sent to contract");
+                web3.personal.unlockAccount(firstAddress, passwordAddress1, 1000);
+                contractInstance.mint.sendTransaction(zsCoinCommitment, 0, {
+                    from: firstAddress
+                }, function(err, txHash) {
+                    if (!err) {
+                        web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                            console.log("CointCommitment for Zweitstimme successfully sent to contract");
+                            $('#divValidation').hide();
+                            $('#divVoting').show();
+                        });
+                    }
+                });
             });
         }
     });
 }
 
 function vote() {
-    vote = $('#vote').val();
-    salt = web3.toHex(Math.random().toString(36).slice(-10));
-    hashedVote = contractInstance.shaVote.call(secondAddress, vote, salt, {
+    erststimme = $('#inputErststimme').val();
+    zweitstimme = $('#inputZweitstimme').val();
+
+    esSalt = web3.toHex(Math.random().toString(36).slice(-10));
+    esHashedVote = contractInstance.shaVote.call(secondAddress, erststimme, esSalt, {
+        from: secondAddress
+    });
+
+    zsSalt = web3.toHex(Math.random().toString(36).slice(-10));
+    zsHashedVote = contractInstance.shaVote.call(secondAddress, zweitstimme, zsSalt, {
         from: secondAddress
     });
 
     web3.personal.unlockAccount(secondAddress, passwordAddress2, 1000);
-    var result = contractInstance.spend.sendTransaction(serialNumber, hashedVote, {
+    contractInstance.spend.sendTransaction(esSerialNumber, esHashedVote, constituency, {
         from: secondAddress
     }, function(err, txHash) {
         if (!err) {
             web3.eth.getTransactionReceiptMined(txHash).then(function() {
-                console.log("Vote successfully sent to contract");
-                $('#divVoting').hide();
-                $('#divRevelation').show();
+                console.log("Erststimme successfully sent to contract");
+                contractInstance.spend.sendTransaction(zsSerialNumber, zsHashedVote, 0, {
+                    from: secondAddress
+                }, function(err, txHash) {
+                    if (!err) {
+                        web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                            console.log("Zweitstimme successfully sent to contract");
+                            $('#divVoting').hide();
+                            $('#divRevelation').show();
+                        });
+                    }
+                });
             });
         }
     });
@@ -139,14 +186,24 @@ function vote() {
 
 function revealVote() {
     web3.personal.unlockAccount(secondAddress, passwordAddress2, 1000);
-    var result = contractInstance.reveal.sendTransaction(vote, salt, {
+    contractInstance.reveal.sendTransaction(erststimme, esSalt, constituency, {
         from: secondAddress
     }, function(err, txHash) {
         if (!err) {
             web3.eth.getTransactionReceiptMined(txHash).then(function() {
-                console.log("Vote successfully revealed");
-                $('#divRevelation').hide();
-                $('#divCompletion').show();
+                console.log("Erstimme successfully revealed");
+                web3.personal.unlockAccount(secondAddress, passwordAddress2, 1000);
+                contractInstance.reveal.sendTransaction(zweitstimme, zsSalt, 0, {
+                    from: secondAddress
+                }, function(err, txHash) {
+                    if (!err) {
+                        web3.eth.getTransactionReceiptMined(txHash).then(function() {
+                            console.log("Zweitstimme successfully revealed");
+                            $('#divRevelation').hide();
+                            $('#divCompletion').show();
+                        });
+                    }
+                });
             });
         }
     });
