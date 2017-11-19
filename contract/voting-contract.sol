@@ -6,19 +6,19 @@ contract VotingContract {
     uint public startTimestamp = 1509872400; // Change to offical start time
     uint public endTimestamp = 1589901200; // Change to official end time
     
-    // Zweitstimme
-    mapping (address => uint8) public zsValidVoters;
-    mapping (bytes => bool) zsCoinCommitments;
-    mapping (bytes32 => bool) zsHashedVotes;
-    mapping (bytes => bool) zsSpendSerialNumbers;
-    uint8[] public zsRevealedVotes;
+    // Zweitstimme Landesliste 1
+    mapping (address => uint8) public zs1ValidVoters;
+    mapping (bytes => bool) zs1CoinCommitments;
+    mapping (bytes32 => bool) zs1HashedVotes;
+    mapping (bytes => bool) zs1SpendSerialNumbers;
+    uint8[] public zs1RevealedVotes;
     
     // Erststimme Wahlkreis 1
-    mapping (address => uint8) public wk1ValidVoters;
-    mapping (bytes => bool) wk1CoinCommitments;
-    mapping (bytes32 => bool) wk1HashedVotes;
-    mapping (bytes => bool) wk1SpendSerialNumbers;
-    uint8[] public wk1RevealedVotes;
+    mapping (address => uint8) public es1ValidVoters;
+    mapping (bytes => bool) es1CoinCommitments;
+    mapping (bytes32 => bool) es1HashedVotes;
+    mapping (bytes => bool) es1SpendSerialNumbers;
+    uint8[] public es1RevealedVotes;
     
 
     function VotingContract() public {
@@ -30,10 +30,10 @@ contract VotingContract {
     */
     function validateVoter(address voter, uint8 constituency) public {
         require(msg.sender == owner);
-        zsValidVoters[voter] = 1;
+        zs1ValidVoters[voter] = 1;
         
         if (constituency == 1) {
-            wk1ValidVoters[voter] = 1;
+            es1ValidVoters[voter] = 1;
         }
     }
     
@@ -45,14 +45,14 @@ contract VotingContract {
         require(block.timestamp <= endTimestamp);
         
         if (voteType == 0) {
-            require(zsValidVoters[msg.sender] == 1);
-            zsCoinCommitments[coinCommitment] = true;
-            zsValidVoters[msg.sender] = 2; // Update status
+            require(zs1ValidVoters[msg.sender] == 1);
+            zs1CoinCommitments[coinCommitment] = true;
+            zs1ValidVoters[msg.sender] = 2; // Update status
         } 
         if (voteType == 1) {
-            require(wk1ValidVoters[msg.sender] == 1);
-            wk1CoinCommitments[coinCommitment] = true;
-            wk1ValidVoters[msg.sender] = 2; // Update status
+            require(es1ValidVoters[msg.sender] == 1);
+            es1CoinCommitments[coinCommitment] = true;
+            es1ValidVoters[msg.sender] = 2; // Update status
         }
         
         return true;
@@ -67,17 +67,17 @@ contract VotingContract {
         
         if (voteType == 0) {
             // TODO zkSNARK: Check if serialNumber has coinCommitment in zsCoinCommitments
-            if (zsSpendSerialNumbers[serialNumber] != true) {
-                zsHashedVotes[hashedVote] = true;
-                zsSpendSerialNumbers[serialNumber] = true;
+            if (zs1SpendSerialNumbers[serialNumber] != true) {
+                zs1HashedVotes[hashedVote] = true;
+                zs1SpendSerialNumbers[serialNumber] = true;
             }
             
         } 
         if (voteType == 1) {
             // TODO zkSNARK: Check if serialNumber has coinCommitment in wk1CoinCommitments
-            if (wk1SpendSerialNumbers[serialNumber] != true) {
-                wk1HashedVotes[hashedVote] = true;
-                wk1SpendSerialNumbers[serialNumber] = true;
+            if (es1SpendSerialNumbers[serialNumber] != true) {
+                es1HashedVotes[hashedVote] = true;
+                es1SpendSerialNumbers[serialNumber] = true;
             }
         }
         
@@ -93,15 +93,15 @@ contract VotingContract {
         bytes32 hashedVote = shaVote(msg.sender, vote, salt);
         
         if (voteType == 0) {
-            if (zsHashedVotes[hashedVote] == true) {
-                zsRevealedVotes.push(vote);
-                zsHashedVotes[hashedVote] = false;
+            if (zs1HashedVotes[hashedVote] == true) {
+                zs1RevealedVotes.push(vote);
+                zs1HashedVotes[hashedVote] = false;
             }
         }
         if (voteType == 1) {
-            if (wk1HashedVotes[hashedVote] == true) {
-                wk1RevealedVotes.push(vote);
-                wk1HashedVotes[hashedVote] = false;
+            if (es1HashedVotes[hashedVote] == true) {
+                es1RevealedVotes.push(vote);
+                es1HashedVotes[hashedVote] = false;
             }
         }
         
