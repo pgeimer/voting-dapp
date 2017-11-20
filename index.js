@@ -194,7 +194,7 @@ function revealVote() {
     }, function(err, txHash) {
         if (!err) {
             web3.eth.getTransactionReceiptMined(txHash).then(function() {
-                console.log("Erstimme successfully revealed");
+                console.log("Erststimme successfully revealed");
                 web3.personal.unlockAccount(secondAddress, passwordAddress2, 1000);
                 contractInstance.reveal.sendTransaction(zweitstimme, zsSalt, constituencies + countryList, {
                     from: secondAddress
