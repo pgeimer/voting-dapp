@@ -151,8 +151,22 @@ function mint() {
 }
 
 function vote() {
-    erststimme = $('#inputErststimme').val();
-    zweitstimme = $('#inputZweitstimme').val();
+    erststimme = $('input[name=erststimme]:checked').val();
+    zweitstimme = $('input[name=zweitstimme]:checked').val();
+
+    if (!erststimme) {
+        alert('Bitte geben Sie die Erststimme an.');
+        Ladda.stopAll();
+        return;
+    }
+
+    if (!zweitstimme) {
+        alert('Bitte geben Sie die Zweitstimme an.');
+        Ladda.stopAll();
+        return;
+    }
+
+    generateZeroKnowledgeProofs();
 
     esSalt = web3.toHex(Math.random().toString(36).slice(-10));
     esHashedVote = contractInstance.shaVote.call(secondAddress, erststimme, esSalt, {
@@ -185,6 +199,10 @@ function vote() {
             });
         }
     });
+}
+
+function generateZeroKnowledgeProofs() {
+    // TODO Implement
 }
 
 function revealVote() {

@@ -1,46 +1,95 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Voting DApp</title>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-  <link href='https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.5/ladda-themeless.min.css' rel='stylesheet' type='text/css'>
+    <title>Voting DApp</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.5/ladda-themeless.min.css' rel='stylesheet' type='text/css'>
 </head>
+
 <body class="container">
-  <h1 style="margin-top: 50px; margin-bottom: 50px;">Bundestagswahl</h1>
+    <h1 style="margin-top: 50px; margin-bottom: 50px;">Bundestagswahl</h1>
 
-  <div id="divStart">
-    <button id="btnStart" class="btn btn-primary ladda-button"><span class="ladda-label">Start</span></button>
-  </div>
-
-  <div id="divValidation" style="display: none;">
-    <div class="form-group">
-      <label for="personalId">Personal Id</label>
-      <input id="personalId" class="form-control" type="text" placeholder="123456"/>
+    <div id="divStart">
+        <button id="btnStart" class="btn btn-primary ladda-button"><span class="ladda-label">Start</span></button>
     </div>
-    <button id="btnCheckVoter" href="javascript:" class="btn btn-primary ladda-button"><span class="ladda-label">Überprüfen</span></button>
-  </div>
 
-
-  <div id="divVoting" style="display: none;">
-
-    <div class="form-group">
-      <input id="inputErststimme" class="form-control" type="text" placeholder="Erststimme"/>
+    <div id="divValidation" style="display: none;">
+        <div class="form-group">
+            <label for="personalId">Personal Id</label>
+            <input id="personalId" class="form-control" type="text" placeholder="123456" />
+        </div>
+        <button id="btnCheckVoter" href="javascript:" class="btn btn-primary ladda-button"><span class="ladda-label">Überprüfen</span></button>
     </div>
-    <div class="form-group">
-      <input id="inputZweitstimme" class="form-control" type="text" placeholder="Zweitstimme"/>
+
+
+    <div id="divVoting" style="display: none;">
+        <p>Wahl zum Deutschen Bundestag im Wahkreis 1 am 24. September 2017. Sie haben zwei Stimmen:</p>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="mt-4 mb-3">Erststimme</h4>
+                <p>Hier 1 Stimme für die Wahl eines/einer Wahlkreisabgeordneten</p>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="erststimme" value="1">
+                        Kandidat 1
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="erststimme" value="2">
+                        Kandidat 2
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="erststimme" value="3">
+                        Kandidat 3
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 class="mt-4 mb-3">Zweitstimme</h4>
+                <p>Hier 1 Stimme für die Wahl einer Landesliste (Partei)<br>
+                    - maßgebende Stimme für die Verteilung der Sitze insgesamt auf die einzelnen Parteien -</p>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="zweitstimme" value="1">
+                        Partei 1
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="zweitstimme" value="2">
+                        Partei 2
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="zweitstimme" value="3">
+                        Partei 3
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-5">
+                <button id="btnVote" class="btn btn-primary ladda-button">Stimmen abgeben</button>
+            </div>
+        </div>
     </div>
-    <button id="btnVote" class="btn btn-primary ladda-button">Abstimmen</button>
-  </div>
 
-  <div id="divRevelation" style="display: none;">
-    <p>Ab 18 Uhr können Sie mit dem Klick auf "Stimme offenlegen" Ihre Stimme für die Auszählung offenlegen.</p>
-    <button id="btnRevealVote" class="btn btn-primary ladda-button">Stimme offenlegen</button>
-  </div>
+    <div id="divRevelation" style="display: none;">
+        <p>Ab 18 Uhr können Sie mit dem Klick auf "Stimmen offenlegen" Ihre Stimmen für die Auszählung offenlegen.</p>
+        <button id="btnRevealVote" class="btn btn-primary ladda-button">Stimmen offenlegen</button>
+    </div>
 
-  <div id="divCompletion" style="display: none;">
-    <p>Ihre Stimme wurde erfolgreich offengelegt. Der Wahlvorgang ist damit abgeschlossen. Sie können das Browser-Fenster nun schließen.</p>
-  </div>
+    <div id="divCompletion" style="display: none;">
+        <p>Ihre Stimmen wurden erfolgreich offengelegt. Der Wahlvorgang ist damit abgeschlossen. Sie können das Browser-Fenster nun schließen.</p>
+    </div>
 
 </body>
 <script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script>
@@ -50,4 +99,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.5/ladda.min.js"></script>
 
 <script src="./index.js"></script>
+
 </html>
