@@ -132,14 +132,14 @@ function mint() {
     }, function(err, txHash) {
         if (!err) {
             web3.eth.getTransactionReceiptMined(txHash).then(function() {
-                console.log("CointCommitment for Erststimme successfully sent to contract");
+                console.log("Coin commitment for Erststimme successfully sent to contract");
                 web3.personal.unlockAccount(firstAddress, passwordAddress1, 1000);
                 contractInstance.mint.sendTransaction(zsCoinCommitment, constituencies + countryList, {
                     from: firstAddress
                 }, function(err, txHash) {
                     if (!err) {
                         web3.eth.getTransactionReceiptMined(txHash).then(function() {
-                            console.log("CointCommitment for Zweitstimme successfully sent to contract");
+                            console.log("Coin commitment for Zweitstimme successfully sent to contract");
                             $('#divValidation').hide();
                             $('#divVoting').show();
                         });
