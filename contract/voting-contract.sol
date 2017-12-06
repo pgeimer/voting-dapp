@@ -79,7 +79,6 @@ contract VotingContract {
                 zs1HashedVotes[hashedVote] = true;
                 zs1SpendSerialNumbers[serialNumber] = true;
             }
-            
         }
         
         return true;
